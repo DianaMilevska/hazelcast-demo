@@ -1,11 +1,11 @@
 package com.swift.mgw.rest;
 
+import com.swift.mgw.rest.dto.Person;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -23,25 +23,36 @@ import static com.swift.mgw.common.CommonUtils.closeQuietly;
  * Reads a simple string value from a map.
  * Reads an object from a map.
  */
-//@SpringBootApplication
+@Service
 public class RestClient {
+    @Value("${hz.node.ip}")
+    private String hzNodeIp;
+
+    @Value("${hz.node.port}")
+    private String hzNodePort;
 
     // Base Hazelcast REST url
     // @see http://docs.hazelcast.org/docs/latest/manual/html/restclient.html
-    private static final String HZ_REST_URL = "http://192.168.1.5:5701/hazelcast/rest";
+    private final String HZ_REST_URL = "http://" + hzNodeIp + ":" + hzNodePort + "/hazelcast/rest";
 
-    public static void main1(String[] args) throws IOException, ClassNotFoundException {
+    private WebTarget target;
+
+    public RestClient() {
 //        Client client = ClientBuilder.newClient();
         ResteasyClient client = new ResteasyClientBuilder().build();
-        WebTarget target = client.target(HZ_REST_URL);
+        this.target = client.target(HZ_REST_URL);
+    }
+
+    //"/maps/simple/key1"
+    public void getPerson(String serviceUrl) throws IOException, ClassNotFoundException {
 
         // querying map with String values
-        Response stringResponse = target.path("/maps/simple/key1").request().get();
+        Response stringResponse = target.path(serviceUrl).request().get();
         String responseBody = stringResponse.readEntity(String.class);
         System.out.println("Value for key1 is " + responseBody);
 
         // querying map with Person object values
-        Response objectResponse = target.path("/maps/object/key1").request().get();
+        Response objectResponse = target.path(serviceUrl).request().get();
         byte[] entity = objectResponse.readEntity(byte[].class);
         ByteArrayInputStream byteArrayInputStream = null;
         ObjectInputStream objectInputStream = null;
