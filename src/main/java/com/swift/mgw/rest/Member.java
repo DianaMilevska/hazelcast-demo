@@ -7,8 +7,9 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import com.swift.mgw.rest.dto.Person;
+import org.springframework.stereotype.Service;
 
-//@SpringBootApplication
+@Service
 public class Member {
     private HazelcastInstance hazelcastClient;
 
@@ -19,6 +20,7 @@ public class Member {
                 .disableAllGroups()
                 .enableGroups(RestEndpointGroup.DATA);
         config.getNetworkConfig().setRestApiConfig(restApiConfig);
+        config.setInstanceName("RestMember");
 
         this.hazelcastClient = Hazelcast.newHazelcastInstance(config);
     }

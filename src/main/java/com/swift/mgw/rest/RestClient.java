@@ -25,31 +25,34 @@ import static com.swift.mgw.common.CommonUtils.closeQuietly;
  */
 @Service
 public class RestClient {
-    @Value("${hz.node.ip}")
+    //    @Value("${hz.node.ip}")
     private String hzNodeIp;
 
-    @Value("${hz.node.port}")
+    //    @Value("${hz.node.port}")
     private String hzNodePort;
 
     // Base Hazelcast REST url
     // @see http://docs.hazelcast.org/docs/latest/manual/html/restclient.html
-    private final String HZ_REST_URL = "http://" + hzNodeIp + ":" + hzNodePort + "/hazelcast/rest";
+    private final String HZ_REST_URL;// = "http://" + hzNodeIp + ":" + hzNodePort + "/hazelcast/rest";
 
     private WebTarget target;
 
-    public RestClient() {
+    public RestClient(@Value("${hz.node.ip}") String hzNodeIp, @Value("${hz.node.port}") String hzNodePort) {
 //        Client client = ClientBuilder.newClient();
+        this.hzNodeIp = hzNodeIp;
+        this.hzNodePort = hzNodePort;
+        this.HZ_REST_URL = "http://" + hzNodeIp + ":" + hzNodePort + "/hazelcast/rest";
+
         ResteasyClient client = new ResteasyClientBuilder().build();
         this.target = client.target(HZ_REST_URL);
     }
 
-    //"/maps/simple/key1"
     public void getPerson(String serviceUrl) throws IOException, ClassNotFoundException {
 
         // querying map with String values
-        Response stringResponse = target.path(serviceUrl).request().get();
-        String responseBody = stringResponse.readEntity(String.class);
-        System.out.println("Value for key1 is " + responseBody);
+//        Response stringResponse = target.path(serviceUrl).request().get();
+//        String responseBody = stringResponse.readEntity(String.class);
+//        System.out.println("Value for key1 is " + responseBody);
 
         // querying map with Person object values
         Response objectResponse = target.path(serviceUrl).request().get();

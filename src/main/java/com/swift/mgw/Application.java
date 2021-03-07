@@ -1,5 +1,7 @@
 package com.swift.mgw;
 
+import com.swift.mgw.rest.Member;
+import com.swift.mgw.rest.RestClient;
 import com.swift.mgw.tcp.TCPClient;
 import com.swift.mgw.tcp.dto.Message;
 import com.swift.mgw.tcp.dto.Token;
@@ -16,11 +18,17 @@ import java.util.concurrent.ThreadLocalRandom;
 @ComponentScan(basePackages = "com.swift.mgw")
 public class Application {
 
-    private final static String queueName = "mgw-requests-queue";
-    private final static String mapName = "mgw-token-map";
+    private final String queueName = "mgw-requests-queue";
+    private String mapName = "mgw-token-map";
 
     @Autowired
     private TCPClient client;
+
+    @Autowired
+    private Member restMember;
+
+    @Autowired
+    private RestClient restClient;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -29,8 +37,14 @@ public class Application {
     }
 
     @PostConstruct
-    public void init() throws InterruptedException {
+    public void init() throws Exception {
+        restService();
         tcpService();
+    }
+
+    private void restService() throws Exception {
+        restMember.addPerson();
+        restClient.getPerson("/maps/object/key1");
     }
 
     private void tcpService() throws InterruptedException {
